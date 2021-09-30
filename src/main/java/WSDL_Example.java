@@ -1,4 +1,5 @@
 import com.eviware.soapui.impl.wsdl.*;
+import com.eviware.soapui.impl.wsdl.submit.transports.http.WsdlResponse;
 import com.eviware.soapui.impl.wsdl.support.wsdl.WsdlImporter;
 import com.eviware.soapui.model.iface.Operation;
 import com.eviware.soapui.model.iface.Response;
@@ -15,7 +16,8 @@ public class WSDL_Example {
 
     public static void main(String[] args) throws Exception {
         String urlWsdl = "http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso?WSDL";
-        WsdlProject project = new WsdlProject(urlWsdl);
+
+        WsdlProject project = new WsdlProject();
 
 
         WsdlInterface[] wsdls = WsdlImporter.importWsdl(project, urlWsdl);
@@ -24,6 +26,7 @@ public class WSDL_Example {
         String soapResponse;
         String currentOperation = "currentOperation";
 
+        WsdlResponse wsdlResponse;
         for (Operation operation : wsdl.getOperationList()) {
             WsdlOperation op = (WsdlOperation) operation;
             WsdlRequest wsdlRequest = op.addNewRequest(currentOperation);
@@ -38,6 +41,7 @@ public class WSDL_Example {
             wsdlRequest.setRequestContent(requestXML);
             WsdlSubmitContext wsdlSubmitContext = new WsdlSubmitContext(wsdlRequest);
             WsdlSubmit<?> submit = wsdlRequest.submit(wsdlSubmitContext, false);
+            wsdlResponse = wsdlRequest.getResponse();
             Response response = submit.getResponse();
             soapResponse = response.getContentAsString();
             System.out.println(soapResponse);
