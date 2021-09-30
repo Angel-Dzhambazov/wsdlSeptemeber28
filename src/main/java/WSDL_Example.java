@@ -2,8 +2,12 @@ import com.eviware.soapui.impl.wsdl.*;
 import com.eviware.soapui.impl.wsdl.submit.transports.http.WsdlResponse;
 import com.eviware.soapui.impl.wsdl.support.wsdl.WsdlImporter;
 import com.eviware.soapui.model.iface.Operation;
+import com.eviware.soapui.model.iface.Request;
 import com.eviware.soapui.model.iface.Response;
+import com.eviware.soapui.support.SoapUIException;
+import org.apache.xmlbeans.XmlException;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class WSDL_Example {
@@ -14,13 +18,31 @@ public class WSDL_Example {
             "   </soapenv:Body>\n" +
             "</soapenv:Envelope>";
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
         String urlWsdl = "http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso?WSDL";
 
-        WsdlProject project = new WsdlProject();
+        WsdlProject project = null;
+        try {
+            project = new WsdlProject();
+        } catch (XmlException e) {
+            System.out.println("XmlException");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("IOException");
+            e.printStackTrace();
+        } catch (SoapUIException e) {
+            System.out.println("SoapUIException");
+            e.printStackTrace();
+        }
+        System.out.println(project.toString());
 
-
-        WsdlInterface[] wsdls = WsdlImporter.importWsdl(project, urlWsdl);
+        WsdlInterface[] wsdls = new WsdlInterface[0];
+        try {
+            wsdls = WsdlImporter.importWsdl(project, urlWsdl);
+        } catch (Exception e) {
+            System.out.println("Exception e");
+            e.printStackTrace();
+        }
         WsdlInterface wsdl = wsdls[0];
 
         String soapResponse;
@@ -40,7 +62,12 @@ public class WSDL_Example {
             String requestXML = GET_CONTINENTS;
             wsdlRequest.setRequestContent(requestXML);
             WsdlSubmitContext wsdlSubmitContext = new WsdlSubmitContext(wsdlRequest);
-            WsdlSubmit<?> submit = wsdlRequest.submit(wsdlSubmitContext, false);
+            WsdlSubmit<?> submit = null;
+            try {
+                submit = wsdlRequest.submit(wsdlSubmitContext, false);
+            } catch (Request.SubmitException e) {
+                e.printStackTrace();
+            }
             wsdlResponse = wsdlRequest.getResponse();
             Response response = submit.getResponse();
             soapResponse = response.getContentAsString();
